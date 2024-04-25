@@ -1,0 +1,112 @@
+<section class="main" xmlns="http://www.w3.org/1999/html">
+    <div class="container">
+        <div class="main-title-info">
+            <p>{{dateNow$ | async}}</p>
+            <h1>Добрый день, Пользователь</h1>
+        </div>
+
+        <div class="main-tasks">
+            <mat-card>
+                <mat-card-content>
+                    <div class="main-tasks_task">
+                        <button mat-button [routerLink]="['/tasksList']">My tasks</button>
+                    </div>
+                    <div class="main-tasks_creator">
+                        <div class="main-tasks_creator-wrapper"
+
+                             (click)="creatTaskBtnClick$.next()">
+                            <button mat-button>+ Создать задачу</button>
+                        </div>
+                    </div>
+                    <div class="main-tasks_tasks">
+                        @for(task of tasks$ | async; track task) {
+                            <div class="task-item">
+                                <button mat-button
+                                        color="warn"
+                                        (click)="deleteTaskBtn$.next(task.id)">
+                                    -
+                                </button>
+                                <div class="task-title">
+                                    <a [routerLink]="['/task', task.id]">{{task.title}}</a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+</section>
+
+<ng-template #createTaskTemplate>
+    <form class="creatTaskForm"
+          [formGroup]="taskCreationForm"
+          (ngSubmit)="confirmTaskBtnClick$.next()">
+        <mat-form-field appearance="fill">
+            <mat-label>Название</mat-label>
+            <input matInput
+                   type="text"
+                   [formControl]="taskCreationForm.controls.title!">
+            <mat-error *ngIf="taskCreationForm.controls['title']?.hasError('required')">
+                Поле не должно быть пустым
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+            <mat-label>Дедлайн</mat-label>
+            <input matInput
+                   [matDatepicker]="deadlinePicker"
+                   [formControl]="taskCreationForm.controls.deadline!">
+            <mat-datepicker-toggle matSuffix [for]="deadlinePicker"></mat-datepicker-toggle>
+            <mat-datepicker #deadlinePicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+            <mat-label>Приоритет</mat-label>
+            <mat-select [formControl]="taskCreationForm.controls.priority!">
+                @for (priority of priorityList$ | async; track priority) {
+                <mat-option [value]="priority">
+                    {{ priority.priority }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+            <mat-label>Статус</mat-label>
+            <mat-select [formControl]="taskCreationForm.controls.status!">
+                @for(status of statusList$ | async; track status){
+                    <mat-option [value]="status">
+                        {{status.status}}
+                    </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+            <mat-label>Исполнитель</mat-label>
+            <mat-select [formControl]="taskCreationForm.controls.assignees!">
+                  @for (user of executors$ | async; track user) {
+                <mat-option [value]="user">
+                      {{user.name}}
+                </mat-option>}
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+            <mat-label>Описание</mat-label>
+            <textarea matInput
+                      type="text"
+                      [formControl]="taskCreationForm.controls.description!"></textarea>
+        </mat-form-field>
+
+        <div class="form-confirm">
+            <button mat-raised-button
+                    type="submit"
+                    color="primary"
+                    [disabled]="taskCreationForm.invalid">
+                Создать задачу
+            </button>
+        </div>
+    </form>
+</ng-template>
