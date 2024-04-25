@@ -1,0 +1,113 @@
+<div class="container">
+    @if(error$ | async) {
+        <div class="error text-center">
+            {{ error$ | async }}
+        </div>
+    }
+
+    @if (!(error$ | async)) {
+        <ng-container>
+            @if(isLoading$ | async) {
+                <div id="loader"></div>
+            }
+
+            @if (!(isLoading$ | async)) {
+                <ng-container>
+                    <div class="books-head">
+                        <div class="books-filter">
+                            <label class="filter_title" for="filter_input"></label>
+                            <input #filterInput Autofocus
+                                   type="text"
+                                   class="filter_input input"
+                                   id="filter_input"
+                                   placeholder="Введите название"
+                                   (keyup)="filterTasks$.next(filterInput.value)">
+                            <button class="btn btn-primary filter__clean-btn"
+                                    [disabled]="!filterInput.value"
+                                    (click)="cleanSearchInput()">Сбросить
+                            </button>
+                        </div>
+                    </div>
+
+                    @if ((filteredAndSortedTasks$ | async)!.length < 1){
+                        <div class="filter-error">
+                            К сожалению, по запросу "{{filterInput.value}}" ничего не найдено.
+                        </div>
+                    } @else {
+                        <ng-container>
+                            <table class="mat-elevation-z8"
+                                   mat-table
+                                   matSort
+                                   matSortActive="created"
+                                   matSortDirection="asc"
+                                   [dataSource]="(filteredAndSortedTasks$ | async) ?? []"
+                                   (matSortChange)="sortBooks$.next($event)">
+                                <ng-container matColumnDef="position">
+                                    <th mat-header-cell *matHeaderCellDef>
+                                        #
+                                    </th>
+                                    <td mat-cell *matCellDef="let i = index"> {{i + 1}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="title">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header="title">
+                                        Название
+                                    </th>
+                                    <td class="title-routing"
+                                        mat-cell *matCellDef="let task"
+                                        [routerLink]="['/task', task.id]">
+                                        {{task.title}}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="deadline">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header="deadline">
+                                        Дедлайн
+                                    </th>
+                                    <td class="filterForm" mat-cell *matCellDef="let task">
+                                        {{task.deadline | date:'longDate':'+0000':'ru'}}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="priority">
+                                    <th mat-header-cell *matHeaderCellDef>
+                                        Приоритет
+                                    </th>
+                                    <td mat-cell *matCellDef="let task"> {{task.priority?.priority}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="status">
+                                    <th mat-header-cell *matHeaderCellDef  mat-sort-header="status">
+                                        Статус
+                                    </th>
+                                    <td mat-cell *matCellDef="let task">
+                                        {{task.status?.status}}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="assignees">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header="assignees">
+                                        Исполнители
+                                    </th>
+                                    <td mat-cell *matCellDef="let task">
+                                        {{task.assignees?.name}}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="description">
+                                    <th mat-header-cell *matHeaderCellDef>
+                                        Описание
+                                    </th>
+                                    <td mat-cell *matCellDef="let task">
+                                        {{task.description}}
+                                    </td>
+                                </ng-container>
+
+                                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                            </table>
+                        </ng-container>
+                    }
+                </ng-container>
+            }
+
+        </ng-container>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" [routerLink]="['/main']">Вернуться на главную</button>
+        </mat-card-actions>
+    }
+</div>

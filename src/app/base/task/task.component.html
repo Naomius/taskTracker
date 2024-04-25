@@ -1,0 +1,85 @@
+<div class="container">
+    @if (task$ | async; as task) {
+    <mat-card class="task-detail-card">
+        <mat-card-header>
+            <mat-card-title>Подробности задачи: {{ task.title }}</mat-card-title>
+            <mat-card-subtitle style="margin-bottom: 15px;">
+                Срок выполнения: {{ task.deadline | date:'longDate':'+0000':'ru' }}
+            </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+            <div class="task-detail">
+                <h3>Приоритет:</h3>
+                @if (task.priority) {
+                    <p>{{ task.priority.priority}}</p>
+                }
+            </div>
+
+            <div class="task-detail">
+                <h3>Статус:</h3>
+                <div class="task-status">
+                    <mat-chip-row [matMenuTriggerFor]="statusMenu">
+                        @if (task.status) {
+                            <ng-container>
+                                <mat-chip>
+                                    {{ task.status.status }}
+                                </mat-chip>
+                            </ng-container>
+                        } @else {
+                            <ng-container>
+                                <p>Не указан</p>
+                            </ng-container>
+                        }
+                        <mat-menu #statusMenu="matMenu" >
+                            @for (status of statusList$ | async; track status) {
+                                <button mat-menu-item (click)="changeStatus$.next({taskId: task.id, newStatus: status})">
+                                    {{status.status}}
+                                </button>
+                            }
+                        </mat-menu>
+                    </mat-chip-row>
+                </div>
+            </div>
+
+            <div class="task-detail">
+                <h3>Исполнители:</h3>
+                <div class="task-status">
+                    <mat-chip-row [matMenuTriggerFor]="assigneesMenu">
+                        @if (task.assignees) {
+                            <ng-container>
+                                <mat-chip>
+                                    {{ task.assignees.name }}
+                                </mat-chip>
+                            </ng-container>
+                        } @else {
+                            <ng-container>
+                                <p>Не указаны</p>
+                            </ng-container>
+                        }
+                        <mat-menu #assigneesMenu="matMenu">
+                            @for (executor of executors$ | async; track executor) {
+                                <button mat-menu-item (click)="changeAssignees$.next({taskId: task.id, newAssignees: executor})">
+                                    {{executor.name}}
+                                </button>
+                            }
+                        </mat-menu>
+                    </mat-chip-row>
+                </div>
+            </div>
+
+            <div class="task-detail">
+                <h3>Описание:</h3>
+                <p>{{ task.description }}</p>
+            </div>
+
+        </mat-card-content>
+
+        <mat-card-actions>
+            <button mat-raised-button color="primary" [routerLink]="['/main']">Вернуться на главную</button>
+        </mat-card-actions>
+</mat-card>
+    }
+</div>
+
+
